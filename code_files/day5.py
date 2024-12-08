@@ -94,7 +94,7 @@ class AdventDay5:
 
 
 if __name__ == '__main__':
-    mgr = AdventDay5()
-    mgr.check_updates()
-    mgr.fix_bad_updates()
-    print(mgr.part1, mgr.part2)
+    day5 = AdventDay5()
+    day5.check_updates()
+    day5.fix_bad_updates()
+    print(day5.part1, day5.part2)

@@ -59,7 +59,7 @@ class AdventDay2:
 
 
 if __name__ == '__main__':
-    mgr = AdventDay2()
-    mgr.find_safe_reports()
-    mgr.allow_one_bad_level()
-    print(mgr.part1, mgr.part2)
+    day2 = AdventDay2()
+    day2.find_safe_reports()
+    day2.allow_one_bad_level()
+    print(day2.part1, day2.part2)

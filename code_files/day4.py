@@ -86,7 +86,7 @@ class AdventDay4:
 
 
 if __name__ == '__main__':
-    mgr = AdventDay4()
-    mgr.xmas_search()
-    mgr.diag_x_mas_search()
-    print(mgr.part1, mgr.part2)
+    day4 = AdventDay4()
+    day4.xmas_search()
+    day4.diag_x_mas_search()
+    print(day4.part1, day4.part2)

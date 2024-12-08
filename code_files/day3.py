@@ -61,7 +61,7 @@ class AdventDay3:
 
 
 if __name__ == '__main__':
-    mgr = AdventDay3()
-    mgr.process_all_multiplications()
-    mgr.process_switch_multiplications()
-    print(mgr.part1, mgr.part2)
+    day3 = AdventDay3()
+    day3.process_all_multiplications()
+    day3.process_switch_multiplications()
+    print(day3.part1, day3.part2)
