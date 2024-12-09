@@ -15,10 +15,8 @@ class Guard:
         self.dir = self.change_dir_map[self.dir]
 
     def find_next_move(self):
-        new = [0, 0]
-        for x in range(2):
-            new[x] = self.position[x] + self.dir_vector[self.dir][x]
-        self.possible_move = new
+        self.possible_move = [self.position[x] + self.dir_vector[self.dir][x]
+                              for x in range(2)]
         return self.possible_move
 
     def accept_move(self, next_tile: str, part_1: bool = True):
