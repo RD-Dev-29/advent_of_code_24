@@ -19,9 +19,8 @@ class AdventDay7:
         ops = [0, 1] if part == 'part1' else [0, 1, 2]
         cals = self.calibrations if part == 'part1' else self.invalid_in_part1
         for cal in cals:
-            choices = product(ops, repeat=len(cal[1])-1)
             found = False
-            for choice in choices:
+            for choice in product(ops, repeat=len(cal[1])-1):
                 if cal[0] == self.use_choice(cal[1], choice, cal[0]):
                     self.part1 += cal[0] if part == 'part1' else 0
                     self.part2 += cal[0]
@@ -30,7 +29,7 @@ class AdventDay7:
             if not found and part == 'part1':
                 self.invalid_in_part1.append(cal)
 
-    def use_choice(self, cal_list: list[int],  choice: int, goal: int):
+    def use_choice(self, cal_list: list[int], choice: int, goal: int):
         temp = cal_list[0]
         for i, val in enumerate(choice):
             if val == 0:
