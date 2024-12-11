@@ -26,7 +26,11 @@ class AdventDay8:
             self.part2 = len(self.antinodes)
 
     def _find_next_antinodes(self, point, delta, harmonic: bool = False):
+        if harmonic:
+            self.antinodes.add(point)
+
         potential = tuple([point[x] + delta[x] for x in range(2)])
+
         if self._check_in_bounds(potential):
             self.antinodes.add(potential)
             if harmonic:
