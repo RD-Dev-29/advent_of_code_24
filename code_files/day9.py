@@ -16,15 +16,15 @@ class AdventDay9:
         cur_index = 0
         for i, x in enumerate(self.data):
             if i % 2 == 0:
+                self.disk_expanded += [str(i//2)]*int(x)
                 self.file_map.append({'id': str(i//2),
                                       'file_begin': int(cur_index),
                                       'block_count': int(x),
                                       'moved': False})
-                self.disk_expanded += [str(i//2)]*int(x)
             else:
+                self.disk_expanded += ['.']*int(x)
                 self.space_map.append({'space_begin': int(cur_index),
                                        'block_count': int(x)})
-                self.disk_expanded += ['.']*int(x)
             cur_index += int(x)
 
     def disk_fragment_by_block(self):
@@ -42,27 +42,33 @@ class AdventDay9:
         self.part1_fragment = temp
 
     def disk_fragment_by_file(self):
-        temp = self.disk_expanded.copy()
         for file in self.file_map[::-1]:
-            n = file['block_count']
-            space_needed = ['.']*n
-            i = 0
-            while i < file['file_begin'] - n + 1:
-                if temp[i:i+n] == space_needed:
-                    temp[i:i+n] = [file['id']]*n
-                    temp[file['file_begin']:file['file_begin'] + n] =\
-                        space_needed
+            for i, space in enumerate(self.space_map):
+                if file['file_begin'] <= space['space_begin']:
                     break
-                i += 1
-        self.part2_fragment = temp
+                if file['block_count'] == space['block_count']:
+                    self.space_map.append({'space_begin': file['file_begin'],
+                                           'block_count': file['block_count']})
+                    file['file_begin'] = space['space_begin']
+                    self.space_map.pop(i)
+                    self.space_map.sort(key=lambda x: x['space_begin'])
+                    break
+                elif file['block_count'] < space['block_count']:
+                    self.space_map.append({'space_begin': file['file_begin'],
+                                           'block_count': file['block_count']})
+                    file['file_begin'] = space['space_begin']
+                    space['block_count'] -= file['block_count']
+                    space['space_begin'] += file['block_count']
+                    self.space_map.sort(key=lambda x: x['space_begin'])
+                    break
 
     def calc_checksum(self):
         for i, x in enumerate(self.part1_fragment):
             if x != '.':
                 self.part1 += int(x)*i
-        for i, x in enumerate(self.part2_fragment):
-            if x != '.':
-                self.part2 += int(x)*i
+        for file in self.file_map:
+            self.part2 += sum([int(file['id'])*(file['file_begin'] + i)
+                               for i in range(file['block_count'])])
 
 
 if __name__ == '__main__':
