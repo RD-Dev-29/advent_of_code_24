@@ -1,7 +1,7 @@
 """Day 8 of Advent of Code 2024.
 
 The goal of part 1 is to find the number of antinodes in a map. Antinodes are
-in essence the "next point" in a straight line created by two points, aka 
+in essence the "next point" in a straight line created by two points, aka
 using the same slope and distance from the two points. So any two points should
 have two unique antinodes. We can iterate over the map and find the antinodes
 for each pair of points. We can then count the number of unique antinodes.
