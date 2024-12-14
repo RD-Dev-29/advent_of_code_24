@@ -1,3 +1,17 @@
+"""Day 7 of Advent of Code 2024.
+
+The goal of part 1 is to find if certain operations can be placed between
+numbers in a list to get a certain result. The operations are addition and
+multiplication. We can iterate over the list of numbers and try all possible
+combinations of operations to see if the result matches the target.
+
+The goal of part 2 is to find if certain operations can be placed between
+numbers in a list to get a certain result. The operations are addition,
+multiplication, and concatenation. We can iterate over the list of numbers
+and try all possible combinations of operations to see if the result matches
+the target.
+"""
+
 from itertools import product
 
 
@@ -16,6 +30,8 @@ class AdventDay7:
         self.part2 = 0
 
     def place_operators(self, part: str):
+        """Place the operators between the numbers in the calibration list to
+        get the target value."""
         ops = [0, 1] if part == 'part1' else [0, 1, 2]
         cals = self.calibrations if part == 'part1' else self.invalid_in_part1
         for cal in cals:
@@ -30,6 +46,8 @@ class AdventDay7:
                 self.invalid_in_part1.append(cal)
 
     def use_choice(self, cal_list: list[int], choice: int, goal: int):
+        """Use the choice of operators to calculate the result of the
+        calibration list."""
         temp = cal_list[0]
         for i, val in enumerate(choice):
             if val == 0:
