@@ -39,10 +39,6 @@ class AdventDay13:
                       [machine['A'][1], machine['B'][1]]])
         b = np.array([machine['G'][0], machine['G'][1]])
         ans = np.rint(np.linalg.solve(A, b))
-        if any([x < 0 for x in ans]):
-            return 0
-        if part == 'part_1' and any([x > 100 for x in ans]):
-            return 0
         if (A @ ans == b).all():
             return ans[0] * 3 + ans[1]
         return 0
