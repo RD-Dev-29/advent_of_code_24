@@ -1,4 +1,5 @@
 from day_starter import DayStarter
+import numpy as np
 
 map_val = {0: 'A', 1: 'B', 2: 'G'}
 
@@ -7,11 +8,7 @@ class AdventDay13:
 
     def __init__(self):
         self.data = [x for x in DayStarter(13).split('\n') if x != '']
-        with open('input_files/day13input_micro.txt') as f:
-            self.data = [x for x in f.read().split('\n') if x != '']
-        self.machines: list[dict[str, list[int]]] = []
         self._process_data()
-        print(len(self.machines))
         self.part1 = 0
         self.part2 = 0
 
@@ -27,51 +24,32 @@ class AdventDay13:
                 machines.append(cur_machine)
                 cur_machine = {}
             i = (i + 1) % 3
-        self.machines = machines
+        self.machines: list[dict[str, list[int]]] = machines
 
-    def get_token_cost(self, part: str = 'part1'):
-        if part == 'part2':
-            self.get_b_goals()
-            for i, machine in enumerate(self.machines):
-                print(i)
-                self.part2 += self.check_machine(machine, 'part2')
+    def get_token_cost(self, part: str = 'part_1'):
         for machine in self.machines:
-            self.part1 += self.check_machine(machine)
+            if part == 'part_1':
+                self.part1 += self._check_machine(machine, part)
+            else:
+                machine['G'] = [x + 10000000000000 for x in machine['G']]
+                self.part2 += self._check_machine(machine, part)
 
-    def get_b_goals(self):
-        for machine in self.machines:
-            machine['G'] = [x + 10000000000000 for x in machine['G']]
-
-    def check_machine(self, machine, part: str = 'part1'):
-        b_presses = self._get_div_b(*machine['G'], *machine['B'], part)
-        a_presses = 0
-        start = [x * b_presses for x in machine['B']]
-        while start != machine['G']:
-            print(start, machine['G'], b_presses, a_presses)
-            if part == 'part1' and a_presses > 100:
-                return 0
-            if part == 'part2' and b_presses < 0:
-                return 0
-            if start[0] < machine['G'][0] or start[1] < machine['G'][1]:
-                a_presses += 1
-                start[0] += machine['A'][0]
-                start[1] += machine['A'][1]
-            elif start[0] > machine['G'][0] or start[1] > machine['G'][1]:
-                start[0] -= machine['B'][0]
-                start[1] -= machine['B'][1]
-                b_presses -= 1
-        return a_presses * 3 + b_presses
-
-    def _get_div_b(self, goal_x, goal_y, b_x, b_y, part: str = 'part1'):
-        a = goal_x // b_x
-        b = goal_y // b_y
-        if part == 'part1':
-            return min(a, b, 100)
-        return min(a, b)
+    def _check_machine(self, machine, part: str = 'part_1'):
+        A = np.array([[machine['A'][0], machine['B'][0]],
+                      [machine['A'][1], machine['B'][1]]])
+        b = np.array([machine['G'][0], machine['G'][1]])
+        ans = np.rint(np.linalg.solve(A, b))
+        if any([x < 0 for x in ans]):
+            return 0
+        if part == 'part_1' and any([x > 100 for x in ans]):
+            return 0
+        if (A @ ans == b).all():
+            return ans[0] * 3 + ans[1]
+        return 0
 
 
 if __name__ == '__main__':
     day13 = AdventDay13()
     day13.get_token_cost()
-    day13.get_token_cost('part2')
+    day13.get_token_cost('part_2')
     print(day13.part1, day13.part2)
