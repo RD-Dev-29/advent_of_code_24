@@ -12,26 +12,29 @@ class Robot:
         self.prior = coords
 
     def attempt_move(self, dir, map: dict[tuple[int, int],
-                                          Union[str, 'Robot']]):
+                                          Union[str, 'Robot']],
+                     valid=False):
         self.temp =\
             [tuple([coord[i] + self.move_map[dir][i]
                    for i in range(2)])
                 for coord in self.coords]
-        if any([map[self.temp[i]] == '#' for i in range(len(self.temp))]):
-            return False
+        ans = []
+        for i in range(len(self.temp)):
+            if map[self.temp[i]] == '#':
+                return False
+            elif map[self.temp[i]] == '.':
+                ans.append(True)
+            elif self.temp[i] in self.coords:
+                ans.append(True)
+            elif isinstance(map[self.temp[i]], Box) and not valid:
+                ans.append(map[self.temp[i]].attempt_move(dir, map))
+            elif isinstance(map[self.temp[i]], Box) and valid:
+                ans.append(map[self.temp[i]].process_move(dir, map))
+        return all(ans)
 
-        def final_check(temp):
-            if map[temp] == '.':
-                return True
-            elif map[temp] == self:
-                return True
-            elif isinstance(map[temp], Box):
-                return map[temp].complete_move(dir, map)
-
-        return all([final_check(self.temp[i]) for i in range(len(self.temp))])
-
-    def complete_move(self, dir, map):
+    def process_move(self, dir, map):
         if self.attempt_move(dir, map):
+            self.attempt_move(dir, map, True)
             self.prior = [x for x in self.coords]
             self.coords = [x for x in self.temp]
             self.temp = None
@@ -41,10 +44,10 @@ class Robot:
         return False
 
     def update_map(self, map):
-        for i in range(len(self.coords)):
-            print(self.coords[i])
-            map[tuple(self.coords[i])] = self
+        for i in range(len(self.prior)):
             map[tuple(self.prior[i])] = '.'
+        for i in range(len(self.coords)):
+            map[tuple(self.coords[i])] = self
 
     def __str__(self) -> str:
         return '@'
@@ -56,15 +59,13 @@ class Box(Robot):
         if len(self.coords) == 1:
             return 'O'
         elif len(self.coords) == 2:
-            return '['
+            return '|'
 
 
 class AdventDay15:
 
     def __init__(self):
         self.data = [x for x in DayStarter(15).split()]
-        with open('input_files/day15input_mini.txt') as f:
-            self.data = f.read().split()
         self._process_data()
         self.part1 = 0
         self.part2 = 0
@@ -92,25 +93,24 @@ class AdventDay15:
                         warehouse_map[coord] = box
                     self.boxes.append(box)
                 elif char == '@':
-                    warehouse_map[(i, j*part)] = '@'
-                    warehouse_map[(i, part*(j+1) - 1)] =\
-                        '.' if part == 2 else '@'
                     self.robot = Robot([[i, j*part]])
+                    warehouse_map[(i, j*part)] = self.robot
+                    if part == 2:
+                        warehouse_map[(i, part*(j+1) - 1)] = '.'
         self.warehouse_map = warehouse_map
 
     def execute_moves(self):
         for i, move in enumerate(self.moves):
-            self.robot.complete_move(move, self.warehouse_map)
-            print(move)
-            self.print_map()
-            # self.print_map()
+            self.robot.process_move(move, self.warehouse_map)
 
     def calc_score(self, part: int = 1):
         if part == 1:
             for box in self.boxes:
                 self.part1 += box.coords[0][0]*100 + box.coords[0][1]
-        for box in self.boxes:
-            self.part2 += box.coords[0][0]*100 + box.coords[0][1]
+        elif part == 2:
+            for box in self.boxes:
+                box.coords.sort()
+                self.part2 += box.coords[0][0]*100 + box.coords[0][1]
 
     def print_map(self):
         for i in range(self.m):
@@ -121,9 +121,8 @@ class AdventDay15:
 
 if __name__ == '__main__':
     day15 = AdventDay15()
-    # day15.print_map()
-    # day15.execute_moves()
-    # day15.calc_score()
+    day15.execute_moves()
+    day15.calc_score()
     day15._process_data(2)
     day15.execute_moves()
     day15.calc_score(2)
