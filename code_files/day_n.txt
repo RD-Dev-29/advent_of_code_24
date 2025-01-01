@@ -1,0 +1,19 @@
+from day_starter import DayStarter
+
+
+class AdventDay_num:
+
+    def __init__(self):
+        self.data = [x for x in DayStarter(_num).split()]
+        self._process_data()
+        self.part1 = 0
+        self.part2 = 0
+
+    def _process_data(self):
+        pass
+
+
+if __name__ == '__main__':
+    day_num = AdventDay_num()
+    print(day_num.data)
+    print(day_num.part1, day_num.part2)
