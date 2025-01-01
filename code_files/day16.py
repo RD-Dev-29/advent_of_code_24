@@ -32,9 +32,7 @@ class AdventDay16:
         self.maze = maze
 
     def traverse_maze(self):
-        future_moves = deque()
-        good_spots = set()
-        maze = self.maze
+        future_moves, good_spots, maze = deque(), set(), self.maze
 
         def dfs(loc, score, dir, reverse):
             if maze[loc] == '#' or (isinstance(maze[loc], int) and
