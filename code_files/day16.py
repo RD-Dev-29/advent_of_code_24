@@ -1,12 +1,9 @@
 from day_starter import DayStarter
 from collections import deque
-from math import inf
 
 dir_map = {
-    'u': {'v': (-1, 0), 'turns': ['l', 'r']},
-    'd': {'v': (1, 0), 'turns': ['l', 'r']},
-    'l': {'v': (0, -1), 'turns': ['u', 'd']},
-    'r': {'v': (0, 1), 'turns': ['u', 'd']}
+    'u': {'v': (-1, 0), 't': ['l', 'r']}, 'd': {'v': (1, 0), 't': ['l', 'r']},
+    'l': {'v': (0, -1), 't': ['u', 'd']}, 'r': {'v': (0, 1), 't': ['u', 'd']}
 }
 
 
@@ -14,8 +11,6 @@ class AdventDay16:
 
     def __init__(self):
         self.data = [x for x in DayStarter(16).split()]
-        with open('input_files/day16input_mini.txt') as f:
-            self.data = f.read().split('\n')
         self._process_data()
         self.part1 = 0
         self.part2 = 0
@@ -30,83 +25,43 @@ class AdventDay16:
                     maze[(i, j)] = 0
                     self.start = (i, j)
                 elif char == 'E':
-                    maze[(i, j)] = char
+                    maze[(i, j)] = 1000000000000
                     self.end = (i, j)
                 else:
                     maze[(i, j)] = char
         self.maze = maze
 
     def traverse_maze(self):
-        best_score = [inf]
         future_moves = deque()
-        seen = set()
+        good_spots = set()
+        maze = self.maze
 
-        def dfs(maze, coords, score, dir):
-            if maze[coords] == '.':
-                maze[coords] = score
-            elif coords in seen and maze[coords] <= score:
+        def dfs(loc, score, dir, reverse):
+            if maze[loc] == '#' or (isinstance(maze[loc], int) and
+                                    maze[loc] < score and not reverse):
                 return
-            elif maze[coords] == '#':
-                return
-            elif maze[coords] == 'E':
-                best_score[0] = min(best_score[0], score)
-                return
-            
-            elif maze[coords] > score or coords not in seen:
-                maze[coords] = score
-            seen.add(coords)
-            forward = (coords[0] + dir_map[dir]['v'][0],
-                       coords[1] + dir_map[dir]['v'][1])
-            future_moves.append([maze, forward, score + 1, dir])
-            for next_dir in dir_map[dir]['turns']:
-                next_coords = (coords[0] + dir_map[next_dir]['v'][0],
-                               coords[1] + dir_map[next_dir]['v'][1])
-                future_moves.append([maze, next_coords, score + 1001, next_dir])
-        future_moves.append([self.maze, self.start, 0, 'r'])
-        while future_moves:
-            maze, coords, score, dir = future_moves.popleft()
-            dfs(maze, coords, score, dir)
-        self.part1 = best_score[0]
-
-    def reverse_maze(self):
-        action_spots = []
-
-        def dfs(maze, coords, last_score, dir):
-            if isinstance(maze[coords], str):
-                return
-            elif isinstance(maze[coords], int):
-                if maze[coords] >= last_score:
+            if maze[loc] == '.' or maze[loc] > score:
+                if reverse:
                     return
-                action_spots.append(coords)
-                old_score = maze[coords]
-                maze[coords] = 'O'
-                next_coords = (coords[0] + dir_map[dir]['v'][0],
-                               coords[1] + dir_map[dir]['v'][1])
-                dfs(maze, next_coords, old_score, dir)
-                for next_dir in dir_map[dir]['turns']:
-                    next_coords = (coords[0] + dir_map[next_dir]['v'][0],
-                                   coords[1] + dir_map[next_dir]['v'][1])
-                    dfs(maze, next_coords, old_score, next_dir)
-        down = (self.end[0] + 1, self.end[1])
-        left = (self.end[0], self.end[1] - 1)
-        dfs(self.maze, down, self.part1, 'd')
-        dfs(self.maze, left, self.part1, 'l')
+                maze[loc] = score
+            if reverse:
+                good_spots.add(loc)
+            for n_dr in [dir, *dir_map[dir]['t']]:
+                n_loc = tuple([loc[i] + dir_map[n_dr]['v'][i] for i in [0, 1]])
+                dif = (1001 if n_dr != dir else 1) * (-1 if reverse else 1)
+                future_moves.append([n_loc, score + dif, n_dr, reverse])
 
-        self.part2 = len(action_spots)
-
-    def print_maze(self):
-        for i in range(self.m):
-            for j in range(self.n):
-                extra = ' '*(6-len(str(self.maze[(i, j)])))
-                print(str(self.maze[(i, j)])+extra, end=' ')
-            print()
-        print('\n')
+        future_moves.append([self.start, 0, 'r', False])
+        while future_moves:
+            dfs(*future_moves.popleft())
+        future_moves.append([self.end, maze[self.end], 'd', True])
+        future_moves.append([self.end, maze[self.end], 'l', True])
+        while future_moves:
+            dfs(*future_moves.popleft())
+        self.part1, self.part2 = maze[self.end], len(good_spots)
 
 
 if __name__ == '__main__':
     day16 = AdventDay16()
     day16.traverse_maze()
-    day16.print_maze()
-    day16.reverse_maze()
-    day16.print_maze()
     print(day16.part1, day16.part2)
