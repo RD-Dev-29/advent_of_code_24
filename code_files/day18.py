@@ -72,8 +72,9 @@ class AdventDay18:
         return self
 
     def print_map(self):
-        for i in range(7):
-            print(''.join([self.memory_space[(i, j)] for j in range(7)]))
+        for i in range(self.goal[0] + 1):
+            print(''.join([self.memory_space[(i, j)]
+                           for j in range(self.goal[1] + 1)]))
 
 
 if __name__ == '__main__':
