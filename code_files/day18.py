@@ -16,7 +16,13 @@ class AdventDay18:
         self.part1 = 0
         self.part2 = 0
 
-    def drop_bytes(self, n):
+    def drop_bytes(self, n: int):
+        """Drop n bytes into the memory space. Terminates if no remaining
+        bytes.
+
+        Args:
+            n: int, number of bytes to drop.
+        """
         for _ in range(n):
             try:
                 position = self.incoming_bytes.pop()
@@ -27,6 +33,8 @@ class AdventDay18:
                 break
 
     def determine_block(self):
+        """Determines the byte which is the last to be dropped before the
+        path to the goal is blocked."""
         while True:
             self.drop_bytes(1)
             if self.navigate(part1=False):
@@ -34,12 +42,16 @@ class AdventDay18:
         self.part2 = self.last_byte
 
     def navigate(self, part1: bool = True):
+        """Navigate from (0, 0) to the goal, updating the distance to the goal
+        in self.part1. If part1 is False, return True if no path is found."""
 
         visited = set()
         search = deque([(0, 0)])
         distance = 0
 
         def bfs_helper(map: dict, position, goal):
+            """Helper function for breadth-first search. Returns True if the
+            goal is reached, False or None otherwise."""
             if position in visited or map.get(position, 'N') in 'N#':
                 return False
             if position == goal:
@@ -62,16 +74,19 @@ class AdventDay18:
         return True  # no path found
 
     def _process_data(self):
+        """Process the data into a list of tuples of coordinates."""
         self.incoming_bytes = [tuple([int(x) for x in coords.split(',')])
                                for coords in self.data][::-1]
         return self
 
     def _generate_map(self, mini: bool = False):
+        """Generate a map of the memory space."""
         n = 7 if mini else 71
         self.memory_space = {(i, j): '.' for i in range(n) for j in range(n)}
         return self
 
     def print_map(self):
+        """Print the memory space."""
         for i in range(self.goal[0] + 1):
             print(''.join([self.memory_space[(i, j)]
                            for j in range(self.goal[1] + 1)]))
