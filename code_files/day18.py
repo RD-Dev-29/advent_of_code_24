@@ -12,18 +12,28 @@ class AdventDay18:
         self._process_data()._generate_map(mini)
         self.goal = (6, 6) if mini else (70, 70)
         self.bytes_dropped = 0
+        self.last_byte = None
         self.part1 = 0
         self.part2 = 0
 
     def drop_bytes(self, n):
         for _ in range(n):
             try:
-                self.memory_space[self.incoming_bytes.pop()] = '#'
+                position = self.incoming_bytes.pop()
+                self.last_byte = position
+                self.memory_space[position] = '#'
                 self.bytes_dropped += 1
             except IndexError:
                 break
 
-    def navigate(self):
+    def determine_block(self):
+        while True:
+            self.drop_bytes(1)
+            if self.navigate(part1=False):
+                break
+        self.part2 = self.last_byte
+
+    def navigate(self, part1: bool = True):
 
         visited = set()
         search = deque([(0, 0)])
@@ -44,9 +54,12 @@ class AdventDay18:
             for _ in range(len(search)):
                 next_spot = search.popleft()
                 if bfs_helper(self.memory_space, next_spot, self.goal):
-                    self.part1 = distance
+                    if part1:
+                        self.part1 = distance
                     return
             distance += 1
+
+        return True  # no path found
 
     def _process_data(self):
         self.incoming_bytes = [tuple([int(x) for x in coords.split(',')])
@@ -67,4 +80,5 @@ if __name__ == '__main__':
     day18 = AdventDay18()
     day18.drop_bytes(1024)
     day18.navigate()
+    day18.determine_block()
     print(day18.part1, day18.part2)
