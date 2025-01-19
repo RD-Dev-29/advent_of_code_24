@@ -1,3 +1,15 @@
+""" Day 18 of Advent of Code 2024.
+
+The goal is to navigate a memory space to reach a goal. The memory space is
+a grid of '.' and '#' characters. The goal is to reach the bottom-right
+corner of the grid. The memory space is initially open, but bytes are dropped
+into spaces as specified in the input.
+
+The goal of part 1 is to determine the shortest path to the goal after 1024
+bytes are dropped. The goal of part 2 is to determine the last byte dropped
+before the path to the goal is blocked.
+"""
+
 from day_starter import DayStarter
 from collections import deque
 
